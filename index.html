@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bus Timing Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef2f5;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e88e5;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 10px 5px;
+      width: 45%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #1e88e5;
+      color: white;
+    }
+
+    .form-container {
+      margin-top: 30px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    .suggestions {
+      background-color: white;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      border-radius: 5px;
+      position: relative;
+      z-index: 100;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+
+    .suggestions div {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Odisha Bus Timing Finder</h1>
+
+  <input type="text" id="source" placeholder="Enter Source" oninput="showSuggestions(this, 'sourceList')">
+  <div id="sourceList" class="suggestions"></div>
+
+  <input type="text" id="destination" placeholder="Enter Destination" oninput="showSuggestions(this, 'destinationList')">
+  <div id="destinationList" class="suggestions"></div>
+
+  <button onclick="searchBus()">Search</button>
+
+  <table id="resultTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Bus No</th>
+        <th>Bus Name</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <div class="form-container">
+    <form onsubmit="addBus(event)">
+      <h2>Add New Bus</h2>
+
+      <label for="newBusNumber">Bus Number:</label>
+      <input type="text" id="newBusNumber" required>
+
+      <label for="newBusName">Bus Name:</label>
+      <input type="text" id="newBusName" required>
+
+      <label for="newSource">From:</label>
+      <input type="text" id="newSource" required>
+
+      <label for="newDestination">To:</label>
+      <input type="text" id="newDestination" required>
+
+      <label for="newDeparture">Departure Time:</label>
+      <input type="text" id="newDeparture" required>
+
+      <label for="newArrival">Arrival Time:</label>
+      <input type="text" id="newArrival" required>
+
+      <br><br>
+      <button type="submit">Add Bus</button>
+    </form>
+  </div>
+
+  <script>
+    const cityList = ["Bhubaneswar", "Cuttack", "Puri", "Balasore", "Berhampur", "Rourkela", "Sambalpur", "Keonjhar", "Angul", "Pallahara"];
+
+    let buses = [
+      { bus_number: "OSRTC101", bus_name: "Jagannath Express", source: "Bhubaneswar", destination: "Cuttack", departure: "08:30 AM", arrival: "09:15 AM" },
+      { bus_number: "OSRTC102", bus_name: "Greenline Deluxe", source: "Cuttack", destination: "Puri", departure: "09:00 AM", arrival: "11:00 AM" },
+      { bus_number: "OSRTC103", bus_name: "Konark Express", source: "Bhubaneswar", destination: "Puri", departure: "10:30 AM", arrival: "12:15 PM" }
+    ];
+
+    function showSuggestions(input, listId) {
+      const val = input.value.toLowerCase();
+      const listDiv = document.getElementById(listId);
+      listDiv.innerHTML = "";
+
+      if (val === "") return;
+
+      const filtered = cityList.filter(city => city.toLowerCase().includes(val));
+
+      filtered.forEach(city => {
+        const div = document.createElement("div");
+        div.textContent = city;
+        div.onclick = () => {
+          input.value = city;
+          listDiv.innerHTML = "";
+        };
+        listDiv.appendChild(div);
+      });
+    }
+
+    function searchBus() {
+      const src = document.getElementById("source").value.toLowerCase();
+      const dest = document.getElementById("destination").value.toLowerCase();
+      const tableBody = document.getElementById("tableBody");
+      const resultTable = document.getElementById("resultTable");
+
+      tableBody.innerHTML = "";
+
+      const results = buses.filter(bus =>
+        bus.source.toLowerCase().includes(src) &&
+        bus.destination.toLowerCase().includes(dest)
+      );
+
+      if (results.length > 0) {
+        resultTable.style.display = "table";
+        results.forEach(bus => {
+          const row = `<tr>
+            <td>${bus.bus_number}</td>
+            <td>${bus.bus_name}</td>
+            <td>${bus.source}</td>
+            <td>${bus.destination}</td>
+            <td>${bus.departure}</td>
+            <td>${bus.arrival}</td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+      } else {
+        resultTable.style.display = "none";
+        alert("No buses found.");
+      }
+    }
+
+    function addBus(e) {
+      e.preventDefault();
+
+      const newBus = {
+        bus_number: document.getElementById("newBusNumber").value,
+        bus_name: document.getElementById("newBusName").value,
+        source: document.getElementById("newSource").value,
+        destination: document.getElementById("newDestination").value,
+        departure: document.getElementById("newDeparture").value,
+        arrival: document.getElementById("newArrival").value
+      };
+
+      buses.push(newBus);
+      alert("New bus added successfully!");
+      document.querySelector("form").reset();
+    }
+  </script>
+</body>
+</html>
