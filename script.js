@@ -181,6 +181,6 @@ let buses = [
   destination: "Bhubaneswar",
   departure: "05:00 AM",
   arrival: "10:30 AM"
-}
+
 	
 ];
