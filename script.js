@@ -22,7 +22,7 @@ let buses = [
     departure: "09:00 AM",
     arrival: "11:00 AM"
   },
-{
+  {
   bus_number: "OSRTC103",
   bus_name: "Konark Special",
   source: "Puri",
